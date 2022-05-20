@@ -5,10 +5,7 @@ import { createStore } from "solid-js/store";
 function highlight(word: string) {
   return (
     <span>
-      <span class="bg-sky-600 p-1 text-white rounded inline-block animate-zoominandout">
-        {word}
-      </span>
-      <span>&nbsp;</span>
+      <span class="bg-sky-600 p-0.5 text-white rounded inline-block animate-zoominandout">{word}</span><span>&nbsp;</span>
     </span>
   )
 }
@@ -31,45 +28,45 @@ const Highlighter = ({ text }: WordProps) => {
   return startHighlighting(text);
 }
 
-function startHighlighting(text: string) { 
-    // Split the text into an array using a space
-    let words = text.split(" ");
+function startHighlighting(text: string) {
+  // Split the text into an array using a space
+  let words = text.split(" ");
 
-    // Create an effect that sets a highlighted word
-    createEffect(() => {
-      // Make an interval to set the highlighted word every 450 milliseconds
-      const interval = setInterval(() => {
-        // Increase the highlighted word index if not paused
-        if (pauseState.paused === false) {
-          // Initialize highlighted word index at 0 then add 1 each time
-          setHighlighted(highlighted => highlighted + 1);
+  // Create an effect that sets a highlighted word
+  createEffect(() => {
+    // Make an interval to set the highlighted word every 350 milliseconds
+    const interval = setInterval(() => {
+      // Increase the highlighted word index if not paused
+      if (pauseState.paused === false) {
+        // Initialize highlighted word index at 0 then add 1 each time
+        setHighlighted(highlighted => highlighted + 1);
+      }
+      // Once it reaches the end of the word list
+      if (highlighted() === words.length) {
+        // Stop the interval from increasing
+        clearInterval(interval);
+        setHighlighted(-1);
+        setPause({ paused: true });
+      }
+    }, 350);
+  })
+
+  return (
+    <div class="m-8 mr-5">
+      {/* Go through each word in the text */}
+      {words.map((word, index) => {
+        {/* If the word at the current index matches the highlighted one in the signal then...*/ }
+        if (index === highlighted()) {
+          {/* Highlight the word at that index */ }
+          return highlight(words[index]);
         }
-        // Once it reaches the end of the word list
-        if (highlighted() === words.length) {
-          // Stop the interval from increasing
-          clearInterval(interval);
-          setHighlighted(-1);
-          setPause({ paused: true });
+        else {
+          {/* Otherwise just display the regular word with a space after (since spaces were removed with .split()) */ }
+          return word + " ";
         }
-      }, 450);
-    })
-  
-    return (
-      <div class="text-left px-8 mr-2 mt-5">
-        {/* Go through each word in the text */}
-        {words.map((word, index) => {
-          {/* If the word at the current index matches the highlighted one in the signal then...*/ }
-          if (index === highlighted()) {
-            {/* Highlight the word at that index */ }
-            return highlight(words[index]);
-          }
-          else {
-            {/* Otherwise just display the regular word with a space after (since spaces were removed with .split()) */ }
-            return word + " ";
-          }
-        })}
-      </div>
-    )
+      })}
+    </div>
+  )
 }
 
 function App() {
